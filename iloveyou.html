@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tỏ Tình Duy Tùng</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background: linear-gradient(to bottom, #ff9a9e, #fad0c4); 
+  overflow: hidden;
+  font-family: 'Great Vibes', cursive;
+  color: #f71023;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 48px;
+      margin-top: 20px;
+    }
+    #falling-words {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .word {
+      position: absolute;
+      font-size: 32px;
+      opacity: 0.8;
+      animation: fall 10s linear infinite;
+    }
+    @keyframes fall {
+      0% {
+        top: -50px;
+        opacity: 0;
+      }
+      100% {
+        top: 100vh;
+        opacity: 1;
+      }
+    }
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: rgb(233, 0, 0);
+      transform: rotate(45deg);
+      animation: float 6s infinite ease-in;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+    .heart::after {
+      left: -10px;
+      top: 0;
+    }
+    @keyframes float {
+      0% {
+        bottom: -50px;
+        transform: translateX(0);
+      }
+      100% {
+        bottom: 100%;
+        transform: translateX(100px);
+      }
+    }
+    .container {
+      text-align: center;
+      margin-top: 40px;
+      z-index: 2;
+      position: relative;
+    }
+    .image {
+      width: 200px;
+      border-radius: 50%;
+      margin: 20px auto;
+      box-shadow: 0 0 20px rgba(255, 0, 123, 0.7);
+    }
+    .btn {
+      margin-top: 20px;
+      font-size: 24px;
+      background: #ff4d88;
+      color: white;
+      border: none;
+      padding: 10px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #e6005c;
+    }
+    canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+  <div class="container">
+    <h1>Em bé yêu anh rất nhiều, Duy Tùng ơi! 💖</h1>
+    <img src="anh cua tui.jpg" alt="Our Photo" class="image">
+    <br>
+    <button class="btn" onclick="alert('Em cũng yêu anh nhiều lắmmmmm 💘')">Anh cũng yêu em!</button>
+    
+  </div>
+
+  <div id="falling-words"></div>
+
+  <audio autoplay loop>
+    <source src="https://www.youtube.com/watch?v=jPjQJYKhhk4" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const words = ["Em yêu anh", "Duy Tùng ❤️ Quỳnh Nương", "Mãi bên nhau", "Thương anh", "Nhớ anh", "Em bé nhớ anh"];
+    const falling = document.getElementById('falling-words');
+    
+    function createWord() {
+      const word = document.createElement('div');
+      word.classList.add('word');
+      word.style.left = Math.random() * 100 + 'vw';
+      word.style.animationDuration = (Math.random() * 5 + 5) + 's';
+      word.innerText = words[Math.floor(Math.random() * words.length)];
+      falling.appendChild(word);
+
+      setTimeout(() => {
+        falling.removeChild(word);
+      }, 10000);
+    }
+    setInterval(createWord, 1000);
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        document.body.removeChild(heart);
+      }, 6000);
+    }
+    setInterval(createHeart, 800);
+
+    // Fireworks
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let fireworks = [];
+
+    function Firework() {
+  this.x = Math.random() * canvas.width;
+  this.y = canvas.height;
+  this.radius = 2;
+  
+  // Chọn màu ngẫu nhiên giữa các tông hồng, đỏ, tím
+  const colors = ['#ff69b4', '#ff1493', '#ffb6c1', '#db7093', '#ff4da6', '#ff85c1'];
+  this.color = colors[Math.floor(Math.random() * colors.length)];
+
+  this.velocity = {
+    x: (Math.random() - 0.5) * 10,
+    y: Math.random() * -15 - 10
+  };
+  this.alpha = 1;
+  this.gravity = 0.2;
+
+  this.update = () => {
+    this.velocity.y += this.gravity;
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.alpha -= 0.01;
+  };
+
+  this.draw = () => {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.restore();
+  };
+}
+
+
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.fillStyle = 'rgba(255, 192, 203, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      fireworks.forEach((f, i) => {
+        f.update();
+        f.draw();
+        if (f.alpha <= 0) fireworks.splice(i, 1);
+      });
+    }
+
+    setInterval(() => {
+      for (let i = 0; i < 10; i++) {
+        fireworks.push(new Firework());
+      }
+    }, 1000);
+
+    animate();
+  </script>
+</body>
+</html>
